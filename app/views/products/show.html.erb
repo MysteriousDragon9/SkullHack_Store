@@ -1,0 +1,89 @@
+<div class="container mt-4" role="main">
+  <%= breadcrumbs(["Home", root_path], ["Products", products_path], [@product.name, nil]) %>
+
+  <div class="row">
+    <!-- Product images -->
+    <div class="col-md-6">
+      <% if @product.image.attached? %>
+        <div class="mb-3">
+          <%= image_tag @product.image.variant(resize_to_limit: [800, 600]),
+                        class: "img-fluid rounded shadow-sm",
+                        alt: "Image of #{@product.name}" %>
+        </div>
+      <% else %>
+        <div class="empty-state p-4 border rounded text-center">
+          <p class="text-muted mb-0">No primary image available.</p>
+        </div>
+      <% end %>
+
+      <% if @product.images.attached? %>
+        <figure class="d-flex flex-wrap gap-2">
+          <% @product.images.each do |img| %>
+            <%= link_to url_for(img), target: "_blank", rel: "noopener" do %>
+              <%= image_tag img.variant(resize_to_limit: [160, 160]),
+                            class: "img-thumbnail",
+                            alt: "#{@product.name} thumbnail image" %>
+            <% end %>
+          <% end %>
+        </figure>
+      <% end %>
+    </div>
+
+    <!-- Product details -->
+    <div class="col-md-6">
+      <h1><%= @product.name %></h1>
+
+      <% if @product.on_sale? && @product.sale_price.present? %>
+        <p class="text-muted">
+          <span class="text-decoration-line-through"><%= number_to_currency(@product.price) %></span>
+          <span class="text-danger fw-bold"><%= number_to_currency(@product.sale_price) %></span>
+        </p>
+      <% else %>
+        <p class="text-muted"><%= number_to_currency(@product.price) %></p>
+      <% end %>
+
+      <p><%= simple_format(@product.description) %></p>
+      <p><strong>Stock:</strong> <%= @product.stock_quantity %></p>
+
+      <!-- Flags -->
+      <div class="mb-2">
+        <% if @product.on_sale? %>
+          <span class="badge bg-danger">On Sale</span>
+        <% end %>
+        <% if @product.is_new? %>
+          <span class="badge bg-success">New</span>
+        <% elsif @product.recently_updated? %>
+          <span class="badge bg-info">Updated</span>
+        <% end %>
+      </div>
+
+      <!-- Add to cart -->
+      <div class="mt-3">
+        <%= form_with url: add_item_cart_path, method: :post, local: true, class: "d-flex align-items-center gap-2" do %>
+          <%= hidden_field_tag :product_id, @product.id %>
+          <%= number_field_tag :quantity, 1, min: 1,
+                class: "form-control", aria: { label: "Quantity for #{@product.name}" } %>
+          <%= submit_tag "Add to Cart", class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <hr class="my-4">
+  <h4>Reviews</h4>
+  <% if @product.reviews.any? %>
+    <% @product.reviews.each do |review| %>
+      <div class="mb-3 border-bottom pb-2">
+        <strong><%= review.user.name %></strong>
+        <span class="text-muted">Rating: <%= review.rating %>/5</span>
+        <span class="text-muted">Reviewed on <%= l(review.created_at, format: :long) %></span>
+        <p><%= review.comment %></p>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="text-muted">No reviews yet</p>
+  <% end %>
+
+  <%= link_to "Back to Products", products_path, class: "btn btn-secondary mt-3" %>
+</div>

@@ -1,0 +1,50 @@
+<div class="col-md-3 mb-4">
+  <div class="card h-100 shadow-sm">
+    <% if product.image&.attached? %>
+      <%= image_tag product.image.variant(resize_to_limit: [400, 300]),
+                    class: "card-img-top",
+                    alt: "Image of #{product.name}" %>
+    <% else %>
+      <%= image_tag "placeholder.png",
+                    class: "card-img-top",
+                    alt: "No image available" %>
+    <% end %>
+
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title"><%= product.name %></h5>
+
+      <% if product.on_sale? && product.sale_price.present? %>
+        <p class="card-text mb-2">
+          <span class="text-muted text-decoration-line-through"><%= number_to_currency(product.price) %></span>
+          <span class="text-danger fw-bold"><%= number_to_currency(product.sale_price) %></span>
+        </p>
+      <% else %>
+        <p class="card-text text-muted mb-2"><%= number_to_currency(product.price) %></p>
+      <% end %>
+
+      <p class="card-text"><%= truncate(product.description, length: 80) %></p>
+
+      <div class="mb-2">
+        <% if product.on_sale %>
+          <span class="badge bg-danger me-1">On Sale</span>
+        <% end %>
+        <% if product.is_new? %>
+          <span class="badge bg-success me-1">New</span>
+        <% elsif product.recently_updated? %>
+          <span class="badge bg-info me-1">Updated</span>
+        <% end %>
+        <% if product.stock_quantity > 0 %>
+          <span class="badge bg-success">In Stock</span>
+        <% else %>
+          <span class="badge bg-danger">Out of Stock</span>
+        <% end %>
+      </div>
+
+      <div class="mt-auto">
+        <%= link_to "View Details", product_path(product),
+                    class: "btn btn-primary btn-sm",
+                    aria: { label: "View details for #{product.name}" } %>
+      </div>
+    </div>
+  </div>
+</div>

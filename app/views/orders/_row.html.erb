@@ -1,0 +1,25 @@
+<tr>
+  <td><%= order.id %></td>
+  <td><%= l(order.created_at, format: :short) %></td>
+  <td>
+    <% status_class = case order.status
+      when "pending" then "bg-warning"
+      when "paid" then "bg-success"
+      when "cancelled" then "bg-danger"
+      else "bg-secondary"
+    end %>
+    <span class="badge <%= status_class %>"><%= order.status.titleize %></span>
+  </td>
+  <td><%= number_to_currency(order.total) %></td>
+  <td class="text-end">
+    <%= link_to "View", order_path(order),
+                class: "btn btn-sm btn-outline-primary",
+                aria: { label: "View order ##{order.id}" } %>
+    <% if current_user.admin? %>
+      <%= link_to "Edit", edit_order_path(order), class: "btn btn-sm btn-outline-secondary me-1" %>
+      <%= link_to "Delete", order_path(order),
+                  data: { turbo_method: :delete, turbo_confirm: "Delete order ##{order.id}?" },
+                  class: "btn btn-sm btn-outline-danger" %>
+    <% end %>
+  </td>
+</tr>

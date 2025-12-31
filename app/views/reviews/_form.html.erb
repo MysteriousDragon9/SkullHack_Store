@@ -1,0 +1,25 @@
+<div class="card mt-4 shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">Leave a Review</h5>
+
+    <%= form_with(model: [@product, Review.new], local: true) do |f| %>
+      <div class="mb-3">
+        <%= f.label :rating, "Rating (1–5)", class: "form-label" %>
+        <%= f.number_field :rating, min: 1, max: 5, class: "form-control", aria: { label: "Rating from 1 to 5" } %>
+        <% if f.object.errors[:rating].any? %>
+          <div class="text-danger"><%= f.object.errors[:rating].join(", ") %></div>
+        <% end %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :comment, "Comment", class: "form-label" %>
+        <%= f.text_area :comment, rows: 3, class: "form-control" %>
+        <% if f.object.errors[:comment].any? %>
+          <div class="text-danger"><%= f.object.errors[:comment].join(", ") %></div>
+        <% end %>
+      </div>
+
+      <%= f.submit "Submit Review", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>

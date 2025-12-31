@@ -1,0 +1,31 @@
+<!-- app/views/order_mailer/receipt.html.erb -->
+<h1 style="color:#2c3e50;">Thanks for your purchase!</h1>
+<p>Order #<%= @order.id %> — <%= @order.status.titleize %></p>
+
+<table style="width:100%; border-collapse: collapse; margin-top:1em;">
+  <thead>
+    <tr style="border-bottom:1px solid #ccc;">
+      <th align="left">Product</th>
+      <th align="center">Qty</th>
+      <th align="right">Line Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @order.order_items.each do |item| %>
+      <tr>
+        <td><%= item.product.name %></td>
+        <td align="center"><%= item.quantity %></td>
+        <td align="right"><%= number_to_currency(item.line_total) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p style="margin-top:1em;">Subtotal: <%= number_to_currency(@order.subtotal) %></p>
+<p>Tax: <%= number_to_currency(@order.tax_total) %></p>
+<p><strong>Total: <%= number_to_currency(@order.grand_total) %></strong></p>
+
+<hr style="margin:2em 0;">
+<p style="font-size:0.9em; color:#555;">
+  If you have any questions, contact us at support@skullhackstore.com.
+</p>

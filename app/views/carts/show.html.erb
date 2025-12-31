@@ -1,0 +1,74 @@
+<h1>Your Cart</h1>
+
+<% if @cart_items.empty? %>
+  <p class="alert alert-info">Your cart is empty.</p>
+<% else %>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Product</th>
+          <th scope="col">Price</th>
+          <th scope="col">Qty</th>
+          <th scope="col">Subtotal</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% total = 0 %>
+        <% @cart_items.each do |item| %>
+          <% product  = item.product %>
+          <% subtotal = item.unit_price * item.quantity %>
+          <% total   += subtotal %>
+          <tr>
+            <td scope="row">
+              <% if product.image.attached? %>
+                <%= image_tag product.image.variant(resize_to_limit: [60, 60]),
+                              class: "img-thumbnail me-2",
+                              alt: "Thumbnail of #{product.name}" %>
+              <% else %>
+                <%= image_tag "placeholder.png",
+                              class: "img-thumbnail me-2",
+                              alt: "No image available" %>
+              <% end %>
+              <%= product.name %>
+            </td>
+            <td><%= number_to_currency(item.unit_price) %></td>
+            <td>
+              <!-- Update quantity form (PATCH) -->
+              <%= form_with url: update_item_cart_path, method: :patch, local: true, class: "d-flex" do %>
+                <%= hidden_field_tag :product_id, product.id %>
+                <%= number_field_tag :quantity, item.quantity, min: 1,
+                      class: "form-control form-control-sm me-2",
+                      aria: { label: "Quantity for #{product.name}" } %>
+                <%= submit_tag "Update",
+                      class: "btn btn-sm btn-outline-primary",
+                      aria: { label: "Update quantity for #{product.name}" } %>
+              <% end %>
+            </td>
+            <td><%= number_to_currency(subtotal) %></td>
+            <td>
+              <!-- Remove item button (DELETE) -->
+              <%= button_to "Remove",
+                            remove_item_cart_path(product_id: product.id),
+                            method: :delete,
+                            class: "btn btn-sm btn-outline-danger",
+                            data: { confirm: "Remove #{product.name} from cart?" },
+                            aria: { label: "Remove #{product.name} from cart" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-footer d-flex justify-content-between mt-3">
+    <strong>Total: <%= number_to_currency(total) %></strong>
+    <%= button_to "Checkout",
+                  checkout_cart_path,
+                  params: { idempotency_key: SecureRandom.uuid },
+                  method: :post,
+                  class: "btn btn-success",
+                  aria: { label: "Proceed to checkout" } %>
+  </div>
+<% end %>

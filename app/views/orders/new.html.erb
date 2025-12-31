@@ -1,0 +1,39 @@
+<h1>Checkout</h1>
+
+<% if @cart.blank? %>
+  <p class="alert alert-info">Your cart is empty.</p>
+<% else %>
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th scope="col">Item</th>
+        <th scope="col">Qty</th>
+        <th scope="col">Unit</th>
+        <th scope="col">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <% qty = @cart[product.id.to_s].to_i %>
+        <tr>
+          <td><%= product.name %></td>
+          <td><%= qty %></td>
+          <td><%= number_to_currency(product.price) %></td>
+          <td><%= number_to_currency(product.price * qty) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr><td colspan="3" class="text-end"><strong>Subtotal:</strong></td><td><%= number_to_currency(@summary[:subtotal]) %></td></tr>
+      <tr><td colspan="3" class="text-end"><strong>GST:</strong></td><td><%= number_to_currency(@summary[:gst]) %></td></tr>
+      <tr><td colspan="3" class="text-end"><strong>PST:</strong></td><td><%= number_to_currency(@summary[:pst]) %></td></tr>
+      <tr><td colspan="3" class="text-end"><strong>HST:</strong></td><td><%= number_to_currency(@summary[:hst]) %></td></tr>
+      <tr><td colspan="3" class="text-end"><strong>Total:</strong></td><td><%= number_to_currency(@summary[:total]) %></td></tr>
+    </tfoot>
+  </table>
+
+  <%= button_to "Place order", orders_path,
+                method: :post,
+                class: "btn btn-success",
+                aria: { label: "Place order with total #{@summary[:total]}" } %>
+<% end %>

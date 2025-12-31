@@ -1,0 +1,11 @@
+<div class="container mt-4">
+  <h1><%= @page.title %></h1>
+
+  <% if @page.content.present? %>
+    <div class="content" role="main">
+      <%= simple_format(@page.content) %>
+    </div>
+  <% else %>
+    <p class="text-muted">No content available for this page.</p>
+  <% end %>
+</div>

@@ -1,0 +1,84 @@
+<div class="container mt-4">
+  <%= page_title "Products" %>
+  <%= breadcrumbs(["Home", root_path], ["Products", nil]) %>
+
+  <!-- Search form -->
+  <%= form_with url: products_path, method: :get, local: true, class: "mb-3" do %>
+    <div class="input-group">
+      <%= text_field_tag :search, params[:search], class: "form-control",
+                         placeholder: "Search products...", aria: { label: "Search products" } %>
+      <%= select_tag :category_id,
+          options_from_collection_for_select(@categories, :id, :name, params[:category_id]),
+          include_blank: "All categories",
+          class: "form-select", aria: { label: "Filter by category" } %>
+      <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+  <% end %>
+
+  <!-- Filters -->
+  <div class="btn-group mb-4" role="group" aria-label="Product filters">
+    <%= link_to "All", products_path,
+                class: "btn btn-outline-secondary #{'active' if params[:filter].blank?}",
+                aria: { current: (params[:filter].blank? ? "page" : nil) } %>
+    <%= link_to "On Sale", products_path(filter: "on_sale", search: params[:search], category_id: params[:category_id]),
+                class: "btn btn-outline-secondary #{'active' if params[:filter] == 'on_sale'}",
+                aria: { current: (params[:filter] == 'on_sale' ? "page" : nil) } %>
+    <%= link_to "New", products_path(filter: "new", search: params[:search], category_id: params[:category_id]),
+                class: "btn btn-outline-secondary #{'active' if params[:filter] == 'new'}",
+                aria: { current: (params[:filter] == 'new' ? "page" : nil) } %>
+    <%= link_to "Recently Updated", products_path(filter: "recently_updated", search: params[:search], category_id: params[:category_id]),
+                class: "btn btn-outline-secondary #{'active' if params[:filter] == 'recently_updated'}",
+                aria: { current: (params[:filter] == 'recently_updated' ? "page" : nil) } %>
+  </div>
+
+  <!-- Product listing -->
+  <% if @products.any? %>
+    <div class="row">
+      <% @products.each do |product| %>
+        <%= render "card", product: product %>
+      <% end %>
+    </div>
+    <div class="d-flex justify-content-center mt-3">
+      <%= paginate @products %>
+    </div>
+  <% else %>
+    <div class="empty-state text-center p-4 border rounded">
+      <i class="bi bi-box-seam display-4 text-muted"></i>
+      <h5>No products found</h5>
+      <p class="text-muted">Try adjusting your search or filters.</p>
+      <%= link_to "Browse All Products", products_path, class: "btn btn-primary mt-2" %>
+    </div>
+  <% end %>
+
+  <!-- Cart summary -->
+  <% if user_signed_in? && current_user.cart&.cart_items&.any? %>
+    <div class="card mt-5 shadow-sm">
+      <div class="card-body">
+        <h4 class="card-title">Your Cart</h4>
+        <ul class="list-group mb-3">
+          <% current_user.cart.cart_items.includes(:product).each do |item| %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong><%= item.product.name %></strong><br>
+                Quantity: <%= item.quantity %>
+              </div>
+              <div>
+                <span><%= number_to_currency(item.unit_price * item.quantity) %></span>
+                <%= link_to "Remove", remove_item_cart_path(item.product.id),
+                    method: :delete,
+                      class: "btn btn-sm btn-outline-danger ms-2",
+                        aria: { label: "Remove #{item.product.name} from cart" } %>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+        <p class="mb-3"><strong>Total:</strong> <%= number_to_currency(current_user.cart.total_price) %></p>
+
+        <%= form_with url: checkout_cart_path, method: :post, local: true do %>
+          <%= hidden_field_tag :idempotency_key, SecureRandom.uuid %>
+          <%= submit_tag "Checkout", class: "btn btn-success" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

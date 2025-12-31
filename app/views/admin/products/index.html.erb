@@ -1,0 +1,77 @@
+<h1 class="mb-4">Products</h1>
+
+<div class="d-flex justify-content-between mb-3">
+  <%= link_to "New Product", new_admin_product_path, class: "btn btn-primary" %>
+  <span class="text-muted">Total: <%= @products.total_count %></span>
+</div>
+
+<% if @products.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle shadow-sm">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Image</th>
+          <th scope="col">Name</th>
+          <th scope="col">Category</th>
+          <th scope="col">Price</th>
+          <th scope="col">Stock</th>
+          <th scope="col">Status</th>
+          <th scope="col" class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @products.each do |product| %>
+          <tr>
+            <td>
+              <% if product.image.attached? %>
+                <%= image_tag product.image.variant(resize_to_limit: [60, 60]),
+                              class: "img-thumbnail",
+                              alt: "Thumbnail of #{product.name}" %>
+              <% else %>
+                <span class="text-muted">No image</span>
+              <% end %>
+            </td>
+            <td><%= product.name %></td>
+            <td><%= product.category&.name || "-" %></td>
+            <td><%= number_to_currency(product.price) %></td>
+            <td>
+              <% if product.stock_quantity > 0 %>
+                <span class="badge bg-success">In Stock</span>
+              <% else %>
+                <span class="badge bg-danger">Out of Stock</span>
+              <% end %>
+            </td>
+            <td>
+              <% if product.on_sale %>
+                <span class="badge bg-danger me-1">On Sale</span>
+              <% end %>
+              <% if product.created_at >= 3.days.ago %>
+                <span class="badge bg-success me-1">New</span>
+              <% elsif product.updated_at >= 3.days.ago %>
+                <span class="badge bg-info">Updated</span>
+              <% end %>
+            </td>
+            <td class="text-end">
+              <%= link_to "Show", admin_product_path(product),
+                          class: "btn btn-sm btn-outline-secondary me-1",
+                          aria: { label: "Show #{product.name}" } %>
+              <%= link_to "Edit", edit_admin_product_path(product),
+                          class: "btn btn-sm btn-outline-primary me-1",
+                          aria: { label: "Edit #{product.name}" } %>
+              <%= link_to "Delete", admin_product_path(product),
+                          data: { turbo_method: :delete, turbo_confirm: "Delete #{product.name}?" },
+                          class: "btn btn-sm btn-outline-danger",
+                          aria: { label: "Delete #{product.name}" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-center mt-3">
+    <%= paginate @products %>
+  </div>
+<% else %>
+  <p class="text-muted">No products found.</p>
+<% end %>

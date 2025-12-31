@@ -1,0 +1,25 @@
+<%= form_with(model: [:admin, @category], local: true) do |form| %>
+  <div class="mb-3">
+    <%= form.label :name %>
+    <%= form.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :description %>
+    <%= form.text_area :description, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :image %>
+    <%= form.file_field :image, class: "form-control" %>
+    <% if @category.image.attached? %>
+      <div class="mt-2">
+        <%= image_tag @category.image.variant(resize_to_limit: [200, 200]),
+                      class: "img-thumbnail",
+                      alt: "Current image for #{@category.name}" %>
+      </div>
+    <% end %>
+  </div>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>

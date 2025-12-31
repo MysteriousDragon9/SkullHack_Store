@@ -1,0 +1,39 @@
+<h1>Order #<%= @order.id %></h1>
+
+<p><strong>User:</strong> <%= @order.user.email %></p>
+
+<p><strong>Status:</strong>
+  <% badge_class = {
+    "pending" => "bg-warning",
+    "paid" => "bg-success",
+    "canceled" => "bg-danger",
+    "shipped" => "bg-info"
+  }[@order.status] || "bg-secondary" %>
+  <span class="badge <%= badge_class %>"><%= @order.status.capitalize %></span>
+</p>
+
+<p><strong>Total:</strong> <%= number_to_currency(@order.grand_total) %></p>
+<p><strong>Payment ID:</strong> <%= @order.payment_id.presence || content_tag(:span, "-", class: "text-muted") %></p>
+
+<h2>Items</h2>
+<table class="table">
+  <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+  <tbody>
+    <% @order.order_items.each do |item| %>
+      <tr>
+        <td><%= item.product.name %></td>
+        <td><%= item.quantity %></td>
+        <td><%= number_to_currency(item.unit_price) %></td>
+        <td><%= number_to_currency(item.line_total) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= form_with model: [:admin, @order], method: :patch, local: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :status %>
+    <%= f.select :status, Order.statuses.keys.map { |s| [s.capitalize, s] }, {}, class: "form-select" %>
+  </div>
+  <%= f.submit "Update status", class: "btn btn-primary" %>
+<% end %>

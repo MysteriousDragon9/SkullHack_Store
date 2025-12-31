@@ -1,0 +1,60 @@
+<%= page_title "Order ##{@order.id}" %>
+<%= breadcrumbs(["Home", root_path], ["Orders", orders_path], ["Order ##{@order.id}", nil]) %>
+
+<div class="container mt-4">
+  <h2>Order #<%= @order.id %></h2>
+
+  <p><strong>User:</strong> <%= @order.user.name %> (<%= @order.user.email %>)</p>
+  <p>
+    <strong>Status:</strong>
+    <span class="badge <%= badge_class_for(@order.status) %>">
+      <%= @order.status.titleize %>
+    </span>
+  </p>
+  <p><strong>Shipping address:</strong> <%= @order.shipping_address %></p>
+  <p><strong>Province:</strong> <%= @order.shipping_province_name || "-" %></p>
+
+  <h4 class="mt-4">Items</h4>
+  <% if @order.order_items.any? %>
+    <table class="table table-striped align-middle shadow-sm" role="table">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Product</th>
+          <th scope="col" class="text-end">Qty</th>
+          <th scope="col" class="text-end">Unit Price</th>
+          <th scope="col" class="text-end">Line Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @order.order_items.each do |item| %>
+          <tr>
+            <td><%= item.product.name %></td>
+            <td class="text-end"><%= item.quantity %></td>
+            <td class="text-end"><%= number_to_currency(item.unit_price) %></td>
+            <td class="text-end"><%= number_to_currency(item.line_total) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="alert alert-warning">No items found for this order.</p>
+  <% end %>
+
+  <div class="card mt-3">
+    <div class="card-body text-end">
+      <p><strong>Subtotal:</strong> <%= number_to_currency(@order.subtotal) %></p>
+      <p><strong>Tax (<%= (@order.shipping_tax_rate * 100).round(2) %>%):</strong>
+         <%= number_to_currency(@order.tax_total) %></p>
+      <p class="fs-5"><strong>Grand Total:</strong> <%= number_to_currency(@order.grand_total) %></p>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <%= link_to "Back to Orders", orders_path, class: "btn btn-secondary" %>
+    <% if @order.pending? %>
+      <%= link_to "Pay now (test)", pay_order_path(@order),
+                  class: "btn btn-primary ms-2",
+                  aria: { label: "Pay order ##{@order.id}" } %>
+    <% end %>
+  </div>
+</div>

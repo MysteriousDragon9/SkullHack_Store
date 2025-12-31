@@ -1,0 +1,47 @@
+<h1>Orders</h1>
+
+<% if @orders.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @orders.each do |order| %>
+          <tr>
+            <td><%= order.id %></td>
+            <td><%= order.user.email %></td>
+            <td><%= number_to_currency(order.grand_total) %></td>
+            <td>
+              <% badge_class = {
+                "pending" => "bg-warning",
+                "paid" => "bg-success",
+                "canceled" => "bg-danger",
+                "shipped" => "bg-info"
+              }[order.status] || "bg-secondary" %>
+              <span class="badge <%= badge_class %>"><%= order.status.capitalize %></span>
+            </td>
+            <td><%= l(order.created_at, format: :short) %></td>
+            <td>
+              <%= link_to "View", admin_order_path(order), class: "btn btn-sm btn-outline-primary me-1" %>
+              <% if order.pending? %>
+                <%= link_to "Ship", ship_admin_order_path(order), method: :patch, class: "btn btn-sm btn-success me-1" %>
+                <%= link_to "Cancel", cancel_admin_order_path(order), method: :patch, class: "btn btn-sm btn-danger" %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <%= paginate @orders %>
+<% else %>
+  <p>No orders found.</p>
+<% end %>
